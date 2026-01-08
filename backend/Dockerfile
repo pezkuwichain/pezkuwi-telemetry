@@ -9,8 +9,8 @@ RUN cargo build --${PROFILE} --bins -j 2
 
 # MAIN IMAGE FOR PEOPLE TO PULL --- small one#
 FROM docker.io/debian:bullseye-slim
-LABEL maintainer="Parity Technologies"
-LABEL description="Substrate Telemetry Backend shard/core binaries, static build"
+LABEL maintainer="Dijital Kurdistan Tech Institute <admin@pezkuwichain.io>"
+LABEL description="Pezkuwichain Telemetry Backend shard/core binaries"
 
 ARG PROFILE=release
 WORKDIR /usr/local/bin

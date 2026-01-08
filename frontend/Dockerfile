@@ -1,7 +1,7 @@
 #### BUILDER IMAGE  ####
 FROM docker.io/node:18 as builder
-LABEL maintainer="Chevdor <chevdor@gmail.com>"
-LABEL description="Substrate Telemetry Frontend builder image"
+LABEL maintainer="Dijital Kurdistan Tech Institute <admin@pezkuwichain.io>"
+LABEL description="Pezkuwichain Telemetry Frontend builder image"
 
 WORKDIR /opt/builder
 
@@ -11,8 +11,8 @@ RUN npm install && npm run build
 
 #### OUTPUT IMAGE ####
 FROM docker.io/nginx:stable-alpine
-LABEL maintainer="Chevdor <chevdor@gmail.com>"
-LABEL description="Substrate Telemetry Frontend"
+LABEL maintainer="Dijital Kurdistan Tech Institute <admin@pezkuwichain.io>"
+LABEL description="Pezkuwichain Telemetry Frontend"
 
 # Each time this container is ran, the value that's provided for this env var
 # determines where the frontend will try to request feed information from:
