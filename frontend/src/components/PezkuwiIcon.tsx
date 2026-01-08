@@ -1,11 +1,7 @@
-// Copyright 2018 Paritytech via paritytech/oo7/polkadot-identicon
-// Copyright 2018 @polkadot/ui-shared authors & contributors
-// This software may be modified and distributed under the terms
-// of the Apache-2.0 license. See the LICENSE file for details.
-
-// This has been converted from the original version that can be found at
-//
-// https://github.com/paritytech/oo7/blob/251ba2b7c45503b68eab4320c270b5afa9bccb60/packages/polkadot-identicon/src/index.jsx
+// Pezkuwi Identicon Component
+// Based on polkadot-identicon by Parity Technologies
+// Copyright (C) 2024 Dijital Kurdistan Tech Institute
+// Licensed under GPL-3.0
 import * as React from 'react';
 import { blake2AsU8a, decodeAddress } from '@polkadot/util-crypto';
 import { getSVGShadowRoot, W3SVG } from '../utils';
@@ -193,7 +189,7 @@ function generate(address: string, isSixPoint = false): Circle[] {
   );
 }
 
-interface PolkadotIconProps {
+interface PezkuwiIconProps {
   account: string;
   size: number;
   className?: string;
@@ -227,8 +223,8 @@ function renderShadowIcon(account: string) {
   }
 }
 
-export class PolkadotIcon extends React.Component<PolkadotIconProps> {
-  public shouldComponentUpdate(nextProps: PolkadotIconProps) {
+export class PezkuwiIcon extends React.Component<PezkuwiIconProps> {
+  public shouldComponentUpdate(nextProps: PezkuwiIconProps) {
     return (
       this.props.account !== nextProps.account ||
       this.props.size !== nextProps.size

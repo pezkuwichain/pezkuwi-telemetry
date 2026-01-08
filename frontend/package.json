@@ -1,9 +1,9 @@
 {
-  "name": "@dotstats/frontend",
-  "version": "0.2.1",
-  "author": "Parity Technologies Ltd. <admin@parity.io>",
+  "name": "@pezkuwi/telemetry-frontend",
+  "version": "1.0.0",
+  "author": "Dijital Kurdistan Tech Institute <admin@pezkuwichain.io>",
   "license": "GPL-3.0",
-  "description": "Polkadot Telemetry frontend",
+  "description": "Pezkuwichain Telemetry frontend",
   "scripts": {
     "start": "webpack serve --mode=development",
     "build": "webpack --mode=production",

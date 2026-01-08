@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//Column for specifying which polkadot version node is running on
+//Column for specifying which Pezkuwi node version is running
 
 import * as React from 'react';
 import { ColumnProps } from './';

@@ -20,9 +20,9 @@ import { Node } from '../../../state';
 import { Tooltip, Icon } from '../../';
 import icon from '../../../icons/terminal.svg';
 
-import parityPolkadotIcon from '../../../icons/dot.svg';
-import paritySubstrateIcon from '../../../icons/substrate.svg';
-import polkadotJsIcon from '../../../icons/polkadot-js.svg';
+import pezkuwichainIcon from '../../../icons/pezkuwichain.svg';
+import bizinikiwiiIcon from '../../../icons/bizinikiwi.svg';
+import pezkuwichainJsIcon from '../../../icons/pezkuwichain-js.svg';
 import airalabRobonomicsIcon from '../../../icons/robonomics.svg';
 import chainXIcon from '../../../icons/chainx.svg';
 import edgewareIcon from '../../../icons/edgeware.svg';
@@ -43,12 +43,12 @@ import crustIcon from '../../../icons/crust.svg';
 import gossamerIcon from '../../../icons/gossamer.svg';
 
 const ICONS = {
-  'parity-polkadot': parityPolkadotIcon,
-  'Parity Polkadot': parityPolkadotIcon,
-  'polkadot-js': polkadotJsIcon,
+  'pezkuwichain': pezkuwichainIcon,
+  'Pezkuwichain': pezkuwichainIcon,
+  'pezkuwichain-js': pezkuwichainJsIcon,
   'airalab-robonomics': airalabRobonomicsIcon,
-  'substrate-node': paritySubstrateIcon,
-  'Substrate Node': paritySubstrateIcon,
+  'bizinikiwi-node': bizinikiwiiIcon,
+  'Bizinikiwi Node': bizinikiwiiIcon,
   'edgeware-node': edgewareIcon,
   'Edgeware Node': edgewareIcon,
   'joystream-node': joystreamIcon,
@@ -101,7 +101,7 @@ export class ImplementationColumn extends React.Component<ColumnProps> {
     this.version = version;
 
     const [semver] = version.match(SEMVER_PATTERN) || ['?.?.?'];
-    const implIcon = ICONS[implementation] || paritySubstrateIcon;
+    const implIcon = ICONS[implementation] || bizinikiwiiIcon;
 
     return (
       <td className="Column">
