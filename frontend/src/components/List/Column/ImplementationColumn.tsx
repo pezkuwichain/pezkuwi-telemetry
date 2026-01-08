@@ -43,8 +43,8 @@ import crustIcon from '../../../icons/crust.svg';
 import gossamerIcon from '../../../icons/gossamer.svg';
 
 const ICONS = {
-  'pezkuwichain': pezkuwichainIcon,
-  'Pezkuwichain': pezkuwichainIcon,
+  pezkuwichain: pezkuwichainIcon,
+  Pezkuwichain: pezkuwichainIcon,
   'pezkuwichain-js': pezkuwichainJsIcon,
   'airalab-robonomics': airalabRobonomicsIcon,
   'bizinikiwi-node': bizinikiwiiIcon,
