@@ -1,4 +1,4 @@
-FROM docker.io/paritytech/ci-unified:bullseye-1.88.0-2025-06-27-v202507221446 AS builder
+FROM docker.io/library/rust:1.88-bookworm AS builder
 
 ARG PROFILE=release
 WORKDIR /app
@@ -8,7 +8,7 @@ COPY . .
 RUN cargo build --${PROFILE} --bins -j 2
 
 # MAIN IMAGE FOR PEOPLE TO PULL --- small one#
-FROM docker.io/debian:bullseye-slim
+FROM docker.io/debian:bookworm-slim
 LABEL maintainer="Dijital Kurdistan Tech Institute <admin@pezkuwichain.io>"
 LABEL description="Pezkuwichain Telemetry Backend shard/core binaries"
 
