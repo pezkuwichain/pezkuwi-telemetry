@@ -40,33 +40,32 @@ impl std::str::FromStr for ByteSize {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.trim();
-        match s.find(|c| !char::is_ascii_digit(&c)) {
-            // No non-numeric chars; assume bytes then
-            None => Ok(ByteSize(s.parse().expect("all ascii digits"))),
-            // First non-numeric char
-            Some(idx) => {
-                let n = s[..idx].parse().expect("all ascii digits");
-                let suffix = s[idx..].trim();
-                let n = match suffix {
-                    "B" | "b" => n,
-                    "kB" | "K" | "k" => n * 1000,
-                    "MB" | "M" | "m" => n * 1000 * 1000,
-                    "GB" | "G" | "g" => n * 1000 * 1000 * 1000,
-                    "KiB" | "Ki" => n * 1024,
-                    "MiB" | "Mi" => n * 1024 * 1024,
-                    "GiB" | "Gi" => n * 1024 * 1024 * 1024,
-                    _ => {
-                        return Err(anyhow!(
-                            "\
-                        Cannot parse into bytes; suffix is '{}', but expecting one of \
-                        B,b, kB,K,k, MB,M,m, GB,G,g, KiB,Ki, MiB,Mi, GiB,Gi",
-                            suffix
-                        ))
-                    }
-                };
-                Ok(ByteSize(n))
+        let idx = s.find(|c| !char::is_ascii_digit(&c)).unwrap_or(s.len());
+        // Empty (no digits at all) or too large for usize: a usage error, not a panic.
+        let n: usize = s[..idx]
+            .parse()
+            .map_err(|e| anyhow!("Cannot parse '{}' into bytes: {}", s, e))?;
+        let suffix = s[idx..].trim();
+        let multiplier: usize = match suffix {
+            "" | "B" | "b" => 1,
+            "kB" | "K" | "k" => 1000,
+            "MB" | "M" | "m" => 1000 * 1000,
+            "GB" | "G" | "g" => 1000 * 1000 * 1000,
+            "KiB" | "Ki" => 1024,
+            "MiB" | "Mi" => 1024 * 1024,
+            "GiB" | "Gi" => 1024 * 1024 * 1024,
+            _ => {
+                return Err(anyhow!(
+                    "\
+                Cannot parse into bytes; suffix is '{}', but expecting one of \
+                B,b, kB,K,k, MB,M,m, GB,G,g, KiB,Ki, MiB,Mi, GiB,Gi",
+                    suffix
+                ))
             }
-        }
+        };
+        n.checked_mul(multiplier)
+            .map(ByteSize)
+            .ok_or_else(|| anyhow!("Cannot parse '{}' into bytes: too large", s))
     }
 }
 
@@ -103,6 +102,25 @@ mod test {
         for (s, expected) in cases {
             let b: ByteSize = s.parse().unwrap();
             assert_eq!(b.num_bytes(), expected);
+        }
+    }
+
+    #[test]
+    fn rejects_invalid_strings_instead_of_panicking() {
+        // A typo in --max-node-data-per-second used to abort the shard with a panic
+        // ("all ascii digits") instead of a usage error.
+        let cases = vec![
+            "",
+            "abc",
+            "k",
+            " MB",
+            "1.5MB",
+            "99999999999999999999",
+            "18446744073709551615GiB",
+        ];
+
+        for s in cases {
+            assert!(s.parse::<ByteSize>().is_err(), "{s:?} should not parse");
         }
     }
 }
