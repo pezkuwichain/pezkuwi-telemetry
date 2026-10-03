@@ -29,6 +29,7 @@ use std::{
 
 use aggregator::{Aggregator, FromWebsocket};
 use blocked_addrs::BlockedAddrs;
+use clap::Parser;
 use common::byte_size::ByteSize;
 use common::http_utils;
 use common::node_message;
@@ -38,7 +39,6 @@ use futures::{SinkExt, StreamExt};
 use http::Uri;
 use hyper::{Method, Response};
 use simple_logger::SimpleLogger;
-use structopt::StructOpt;
 
 #[cfg(not(target_env = "msvc"))]
 use jemallocator::Jemalloc;
@@ -53,21 +53,21 @@ const NAME: &str = "Substrate Telemetry Backend Shard";
 const ABOUT: &str = "This is the Telemetry Backend Shard that forwards the \
                      data sent by Substrate/Polkadot nodes to the Backend Core";
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = NAME, version = VERSION, author = AUTHORS, about = ABOUT)]
+#[derive(Parser, Debug)]
+#[command(name = NAME, version = VERSION, author = AUTHORS, about = ABOUT)]
 struct Opts {
     /// This is the socket address that this shard is listening to. This is restricted to
     /// localhost (127.0.0.1) by default and should be fine for most use cases. If
     /// you are using Telemetry in a container, you likely want to set this to '0.0.0.0:8000'
-    #[structopt(short = "l", long = "listen", default_value = "127.0.0.1:8001")]
+    #[arg(short = 'l', long = "listen", default_value = "127.0.0.1:8001")]
     socket: std::net::SocketAddr,
     /// The desired log level; one of 'error', 'warn', 'info', 'debug' or 'trace', where
     /// 'error' only logs errors and 'trace' logs everything.
-    #[structopt(long = "log", default_value = "info")]
+    #[arg(long = "log", default_value = "info")]
     log_level: log::LevelFilter,
     /// Url to the Backend Core endpoint accepting shard connections
-    #[structopt(
-        short = "c",
+    #[arg(
+        short = 'c',
         long = "core",
         default_value = "ws://127.0.0.1:8000/shard_submit/"
     )]
@@ -77,7 +77,7 @@ struct Opts {
     ///
     /// This is important because without a limit, a single connection could exhaust
     /// RAM by suggesting that it accounts for billions of nodes.
-    #[structopt(long, default_value = "20")]
+    #[arg(long, default_value = "20")]
     max_nodes_per_connection: usize,
     /// What is the maximum number of bytes per second, on average, that a connection from a
     /// node is allowed to send to a shard before it gets booted. This is averaged over a
@@ -86,26 +86,26 @@ struct Opts {
     ///
     /// As a reference point, syncing a new Polkadot node leads to a maximum of about 25k of
     /// traffic on average (at least initially).
-    #[structopt(long, default_value = "256k")]
+    #[arg(long, default_value = "256k")]
     max_node_data_per_second: ByteSize,
     /// How many seconds is a "/feed" connection that violates the '--max-node-data-per-second'
     /// value prevented from reconnecting to this shard for, in seconds.
-    #[structopt(long, default_value = "600")]
+    #[arg(long, default_value = "600")]
     node_block_seconds: u64,
     /// Number of worker threads to spawn. If "0" is given, use the number of CPUs available
     /// on the machine. If no value is given, use an internal default that we have deemed sane.
-    #[structopt(long)]
+    #[arg(long)]
     worker_threads: Option<usize>,
     /// Roughly how long to wait in seconds for new telemetry data to arrive from a node. If
     /// telemetry for a node does not arrive in this time frame, we remove the corresponding node
     /// state, and if no messages are received on the connection at all in this time, it will be
     /// dropped.
-    #[structopt(long, default_value = "60")]
+    #[arg(long, default_value = "60")]
     stale_node_timeout: u64,
 }
 
 fn main() {
-    let opts = Opts::from_args();
+    let opts = Opts::parse();
 
     SimpleLogger::new()
         .with_level(opts.log_level)

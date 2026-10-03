@@ -21,7 +21,7 @@ serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
 simple_logger = "4.0.0"
 soketto = "0.7.1"
-structopt = "0.3.21"
+clap = { version = "4.5", features = ["derive"] }
 thiserror = "1.0.25"
 tokio = { version = "1.10.1", features = ["full"] }
 tokio-util = { version = "0.7.4", features = ["compat"] }

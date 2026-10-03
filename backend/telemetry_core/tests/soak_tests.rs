@@ -34,13 +34,13 @@ In general, if you run into issues, it may be better to run this on a linux
 box; MacOS seems to hit limits quicker in general.
 */
 
+use clap::Parser;
 use common::node_types::BlockHash;
 use common::ws_client::SentMessage;
 use futures::{future, StreamExt};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
-use structopt::StructOpt;
 use test_utils::workspace::{start_server, CoreOpts, ServerOpts, ShardOpts};
 
 /// A test runner which sends realistic(ish) messages from fake nodes to a telemetry server.
@@ -266,42 +266,42 @@ fn chain_names(total: usize) -> impl Iterator<Item = String> {
 /// General arguments that are used to start a soak test. Run `soak_test` as
 /// instructed by its documentation for full control over what is ran, or run
 /// preconfigured variants.
-#[derive(StructOpt)]
+#[derive(Parser)]
 struct SoakTestOpts {
     /// The number of shards to run this test with
-    #[structopt(long)]
+    #[arg(long)]
     shards: usize,
     /// The number of feeds to connect to the core
-    #[structopt(long)]
+    #[arg(long)]
     feeds: usize,
     /// The number of chains that nodes will pretend to belong to
-    #[structopt(long, default_value = "1")]
+    #[arg(long, default_value = "1")]
     chains: usize,
     /// The number of nodes to connect to each shard * chain combo.
     /// If we have 10 chains and 4 shards, setting this to 1 will connect `10 x 4 x 1 = 40` nodes.
-    #[structopt(long)]
+    #[arg(long)]
     nodes: usize,
     /// The number of different virtual nodes to connect per actual node socket connection
-    #[structopt(long, default_value = "1")]
+    #[arg(long, default_value = "1")]
     ids_per_node: usize,
     /// Number of aggregator loops to use in the core
-    #[structopt(long)]
+    #[arg(long)]
     core_num_aggregators: Option<usize>,
     /// Number of worker threads the core will use
-    #[structopt(long)]
+    #[arg(long)]
     core_worker_threads: Option<usize>,
     /// Number of worker threads each shard will use
-    #[structopt(long)]
+    #[arg(long)]
     shard_worker_threads: Option<usize>,
     /// Should we log output from the core/shards to stdout?
-    #[structopt(long)]
+    #[arg(long)]
     log_output: bool,
     /// How many worker threads should the soak test runner use?
-    #[structopt(long, default_value = "4")]
+    #[arg(long, default_value = "4")]
     test_worker_threads: usize,
 }
 
-/// Get soak test args from an envvar and parse them via structopt.
+/// Get soak test args from an envvar and parse them via clap.
 fn get_soak_test_opts() -> SoakTestOpts {
     let arg_string = std::env::var("SOAK_TEST_ARGS")
         .expect("Expecting args to be provided in the env var SOAK_TEST_ARGS");
@@ -311,5 +311,5 @@ fn get_soak_test_opts() -> SoakTestOpts {
     // The binary name is expected to be the first arg, so fake it:
     let all_args = std::iter::once("soak_test".to_owned()).chain(args.into_iter());
 
-    SoakTestOpts::from_iter(all_args)
+    SoakTestOpts::parse_from(all_args)
 }

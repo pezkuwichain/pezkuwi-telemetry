@@ -20,8 +20,8 @@ use std::io;
 use std::sync::Arc;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpStream;
-use tokio_rustls::rustls::{OwnedTrustAnchor, ServerName};
-use tokio_rustls::{rustls, TlsConnector};
+use tokio_rustls::rustls::{self, pki_types::ServerName};
+use tokio_rustls::TlsConnector;
 use tokio_util::compat::TokioAsyncReadCompatExt;
 
 use super::{
@@ -274,20 +274,18 @@ async fn may_connect_tls(
     if !use_https {
         return Ok(Box::new(socket));
     };
-    let mut root_cert_store = rustls::RootCertStore::empty();
-    root_cert_store.add_server_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.0.iter().map(|ta| {
-        OwnedTrustAnchor::from_subject_spki_name_constraints(
-            ta.subject,
-            ta.spki,
-            ta.name_constraints,
-        )
-    }));
-    let config = rustls::ClientConfig::builder()
-        .with_safe_defaults()
-        .with_root_certificates(root_cert_store)
-        .with_no_client_auth();
+    let root_cert_store = rustls::RootCertStore {
+        roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
+    };
+    let config = rustls::ClientConfig::builder_with_provider(Arc::new(
+        rustls::crypto::ring::default_provider(),
+    ))
+    .with_safe_default_protocol_versions()
+    .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?
+    .with_root_certificates(root_cert_store)
+    .with_no_client_auth();
     let connector = TlsConnector::from(Arc::new(config));
-    let domain = ServerName::try_from(host)
+    let domain = ServerName::try_from(host.to_owned())
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid dns name"))?;
     let socket = connector.connect(domain, socket).await?;
     Ok(Box::new(socket))
