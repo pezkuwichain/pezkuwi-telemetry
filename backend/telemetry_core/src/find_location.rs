@@ -111,16 +111,10 @@ impl Locator {
             return cached_loc;
         }
 
-        let City { city, location, .. } = self.city.lookup(ip.into()).ok()?;
-        let city = city
-            .as_ref()?
-            .names
-            .as_ref()?
-            .get("en")?
-            .to_string()
-            .into_boxed_str();
-        let latitude = location.as_ref()?.latitude? as f32;
-        let longitude = location?.longitude? as f32;
+        let City { city, location, .. } = self.city.lookup(ip.into()).ok()?.decode().ok()??;
+        let city = city.names.english?.to_string().into_boxed_str();
+        let latitude = location.latitude? as f32;
+        let longitude = location.longitude? as f32;
 
         let location = Arc::new(NodeLocation {
             city,

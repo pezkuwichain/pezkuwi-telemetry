@@ -29,8 +29,9 @@ thiserror = "1.0.24"
 tokio = { version = "1.8.2", features = ["full"] }
 tokio-util = { version = "0.7.4", features = ["compat"] }
 arrayvec = { version = "0.7.1", features = ["serde"] }
-tokio-rustls = "0.23.4"
-webpki-roots = "0.22.4"
+# ring rather than the default aws-lc-rs provider: no cmake/C toolchain in the image build.
+tokio-rustls = { version = "0.26.6", default-features = false, features = ["logging", "ring", "tls12"] }
+webpki-roots = "1.0.9"
 
 [dev-dependencies]
 bincode = "1.3.3"

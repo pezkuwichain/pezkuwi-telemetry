@@ -26,13 +26,13 @@ use aggregator::{
     ToShardWebsocket,
 };
 use bincode::Options;
+use clap::Parser;
 use common::http_utils;
 use common::internal_messages;
 use common::ready_chunks_all::ReadyChunksAll;
 use futures::{SinkExt, StreamExt};
 use hyper::{Method, Response};
 use simple_logger::SimpleLogger;
-use structopt::StructOpt;
 
 #[cfg(not(target_env = "msvc"))]
 use jemallocator::Jemalloc;
@@ -48,49 +48,50 @@ const NAME: &str = "Substrate Telemetry Backend Core";
 const ABOUT: &str = "This is the Telemetry Backend Core that receives telemetry messages \
                      from Substrate/Polkadot nodes and provides the data to a subscribed feed";
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = NAME, version = VERSION, author = AUTHORS, about = ABOUT)]
+#[derive(Parser, Debug)]
+#[command(name = NAME, version = VERSION, author = AUTHORS, about = ABOUT)]
 struct Opts {
     /// This is the socket address that Telemetry is listening to. This is restricted to
     /// localhost (127.0.0.1) by default and should be fine for most use cases. If
     /// you are using Telemetry in a container, you likely want to set this to '0.0.0.0:8000'
-    #[structopt(short = "l", long = "listen", default_value = "127.0.0.1:8000")]
+    #[arg(short = 'l', long = "listen", default_value = "127.0.0.1:8000")]
     socket: std::net::SocketAddr,
     /// The desired log level; one of 'error', 'warn', 'info', 'debug' or 'trace', where
     /// 'error' only logs errors and 'trace' logs everything.
-    #[structopt(long = "log", default_value = "info")]
+    #[arg(long = "log", default_value = "info")]
     log_level: log::LevelFilter,
     /// Space delimited list of the names of chains that are not allowed to connect to
     /// telemetry. Case sensitive.
-    #[structopt(long, required = false)]
+    // Takes every value up to the next flag (`--denylist a b c`), as structopt did.
+    #[arg(long, required = false, num_args = 1..)]
     denylist: Vec<String>,
     /// If it takes longer than this number of seconds to send the current batch of messages
     /// to a feed, the feed connection will be closed.
-    #[structopt(long, default_value = "10")]
+    #[arg(long, default_value = "10")]
     feed_timeout: u64,
     /// Number of worker threads to spawn. If "0" is given, use the number of CPUs available
     /// on the machine. If no value is given, use an internal default that we have deemed sane.
-    #[structopt(long)]
+    #[arg(long)]
     worker_threads: Option<usize>,
     /// Each aggregator keeps track of the entire node state. Feed subscriptions are split across
     /// aggregators.
-    #[structopt(long)]
+    #[arg(long)]
     num_aggregators: Option<usize>,
     /// How big can the message queue for each aggregator grow before we start dropping non-essential
     /// messages in an attempt to let it reduce?
-    #[structopt(long)]
+    #[arg(long)]
     aggregator_queue_len: Option<usize>,
     /// How many nodes from third party chains are allowed to connect before we prevent connections from them.
-    #[structopt(long, default_value = "1000")]
+    #[arg(long, default_value = "1000")]
     max_third_party_nodes: usize,
     /// Flag to expose the node's details (IP address, SysInfo, HwBench) of all connected
     /// nodes to the feed subscribers.
-    #[structopt(long)]
+    #[arg(long)]
     pub expose_node_details: bool,
 }
 
 fn main() {
-    let opts = Opts::from_args();
+    let opts = Opts::parse();
 
     SimpleLogger::new()
         .with_level(opts.log_level)
